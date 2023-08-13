@@ -29,8 +29,8 @@ const votingPage = async () => {
         >
           <div className={`text-${election.color} w-1/2`}>
             <h1 className="uppercase font-bold text-3xl">{election.name}</h1>
-            <p className="text-sm my-8">{election.facultyId}</p>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">Vote</button>
+            <p className="text-sm my-8">{election.faculty?.name}</p>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">View</button>
           </div>
         </Link>
       ))}

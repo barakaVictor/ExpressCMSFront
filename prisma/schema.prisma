@@ -1,14 +1,15 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Define the `User` table in the database
+
 model User {
-  id        String       @id @default(cuid())
+  id        Int       @id @default(autoincrement())
   name      String
   email     String    @unique
   password  String
-  role      Role?     @relation(fields: [roleSlug], references: [slug])
-  roleSlug    String?
-  slug     String    @unique
+  role      Role?     @relation(fields: [roleId], references: [id])
+  roleId    Int?
   student   Student?
   lecturer  Lecturer?
   voter     Voter?
@@ -16,34 +17,30 @@ model User {
 }
 
 model Student {
-  user      User        @relation(fields: [userSlug], references: [slug], onDelete: Cascade)
-  userSlug    String         @id
-  faculty   Faculty?    @relation(fields: [facultySlug], references: [slug])
-  facultySlug String?
-  slug      String        @unique
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int         @id
+  faculty   Faculty?    @relation(fields: [facultyId], references: [id])
+  facultyId Int?
   candidate Candidate[] @relation("ManyToOneCandidateToStudent")
 }
 
 model Lecturer {
-  user      User     @relation(fields: [userSlug], references: [slug], onDelete: Cascade)
-  userSlug    String      @id
-  faculty   Faculty? @relation(fields: [facultySlug], references: [slug])
-  facultySlug String?
-  slug      String        @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @id
+  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+  facultyId Int?
 }
 
 model Role {
-  id        String      @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   name      String   @unique
-  slug      String        @unique
   Users     User[]
   createdAt DateTime @default(now())
 }
 
 model Faculty {
-  id        String        @id @default(cuid())
+  id        Int        @id @default(autoincrement())
   name      String     @unique
-  slug      String        @unique
   students  Student[]
   lecturers Lecturer[]
   elections Election[]
@@ -51,11 +48,10 @@ model Faculty {
 }
 
 model Election {
-  id         String                @id @default(cuid())
+  id         Int                @id @default(autoincrement())
   name       String             @unique
-  faculty    Faculty?           @relation(fields: [facultySlug], references: [slug])
-  facultySlug  String?
-  slug       String             @unique
+  faculty    Faculty?           @relation(fields: [facultyId], references: [id])
+  facultyId  Int?
   positions  ElectivePosition[]
   candidates Candidate[]
   votes Vote[]
@@ -63,10 +59,9 @@ model Election {
 }
 
 model ElectivePosition {
-  id         String         @id @default(cuid())
+  id         Int         @id @default(autoincrement())
   name       String      @unique
   status     Int         @default(1)
-  slug       String             @unique
   candidates Candidate[]
   elections  Election[]
   votes      Vote[]
@@ -75,44 +70,41 @@ model ElectivePosition {
 
 // Define the data model for election candidates
 model Candidate {
-  id         String              @id @default(cuid())
+  id         Int              @id @default(autoincrement())
   name       String
   manifesto  String?
   imageUrl   String?
   votes      Vote[]
-  student    Student          @relation("ManyToOneCandidateToStudent", fields: [studentSlug], references: [userSlug])
-  studentSlug  String
-  position   ElectivePosition @relation(fields: [positionSlug], references: [slug])
-  positionSlug String
-  election   Election         @relation(fields: [electionSlug], references: [slug])
-  electionSlug String
-  slug       String             @unique
+  student    Student          @relation("ManyToOneCandidateToStudent", fields: [studentId], references: [userId])
+  studentId  Int
+  position   ElectivePosition @relation(fields: [positionId], references: [id])
+  positionId Int
+  election   Election         @relation(fields: [electionId], references: [id])
+  electionId Int
   createdAt  DateTime         @default(now())
 
-  @@unique([studentSlug, electionSlug])
+  @@unique([studentId, electionId])
 }
 
 model Voter {
-  id     String    @id @default(cuid())
-  user   User   @relation(fields: [userSlug], references: [slug])  
-  userSlug     String    @unique 
-  slug String    @unique
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
   votes  Vote[]
 }
 
 model Vote {
-  id                 String              @id @default(cuid())
-  voter              Voter            @relation(fields: [voterSlug], references: [slug])
-  voterSlug            String
-  position           ElectivePosition @relation(fields: [electionPositionSlug], references: [slug])
-  electionPositionSlug String
-  candidate          Candidate        @relation(fields: [candidateSlug], references: [slug])
-  candidateSlug        String
-  election   Election         @relation(fields: [electionSlug], references: [slug])
-  electionSlug String
-  slug              String            @unique
+  id                 Int              @id @default(autoincrement())
+  voter              Voter            @relation(fields: [voterId], references: [id])
+  voterId            Int
+  position           ElectivePosition @relation(fields: [electionPositionId], references: [id])
+  electionPositionId Int
+  candidate          Candidate        @relation(fields: [candidateId], references: [id])
+  candidateId        Int
+  election   Election         @relation(fields: [electionId], references: [id])
+  electionId Int
   createdAt          DateTime         @default(now())
-  @@unique([voterSlug, electionPositionSlug, electionSlug])
+  @@unique([voterId, electionPositionId, electionId])
 }
 
 generator client {

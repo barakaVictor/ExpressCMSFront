@@ -3,14 +3,32 @@ export type VotingType = {
     slug: string;
     name: string;
     facultyId?: string;
+    faculty?: FacultyType;
     img?: string;
     color: string;
 } [];
 
+export type ElectionType = {
+    id: string;
+    name: string;
+    candidates: CandidateType[];
+};
+
+export type FacultyType = {
+    id: string;
+    name: string;
+};
+
 export type CandidateType = {
     id: string;
-    slug: string;
-    positions: string;
-    candidates: string;
-} [];
+    name: string;
+    facultyId?: string;
+    img?: string;
+    color: string;
+    position: ElectivePosition
+};
 
+export type ElectivePosition = {
+    id: string;
+    name: string;
+}
