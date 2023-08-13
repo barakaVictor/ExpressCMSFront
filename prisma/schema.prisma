@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+model User {
+  id        String       @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role?     @relation(fields: [roleSlug], references: [slug])
+  roleSlug    String?
+  slug     String    @unique
+  student   Student?
+  lecturer  Lecturer?
+  voter     Voter?
+  createdAt DateTime  @default(now())
+}
+
+model Student {
+  user      User        @relation(fields: [userSlug], references: [slug], onDelete: Cascade)
+  userSlug    String         @id
+  faculty   Faculty?    @relation(fields: [facultySlug], references: [slug])
+  facultySlug String?
+  slug      String        @unique
+  candidate Candidate[] @relation("ManyToOneCandidateToStudent")
+}
+
+model Lecturer {
+  user      User     @relation(fields: [userSlug], references: [slug], onDelete: Cascade)
+  userSlug    String      @id
+  faculty   Faculty? @relation(fields: [facultySlug], references: [slug])
+  facultySlug String?
+  slug      String        @unique
+}
+
+model Role {
+  id        String      @id @default(cuid())
+  name      String   @unique
+  slug      String        @unique
+  Users     User[]
+  createdAt DateTime @default(now())
+}
+
+model Faculty {
+  id        String        @id @default(cuid())
+  name      String     @unique
+  slug      String        @unique
+  students  Student[]
+  lecturers Lecturer[]
+  elections Election[]
+  createdAt DateTime   @default(now())
+}
+
+model Election {
+  id         String                @id @default(cuid())
+  name       String             @unique
+  faculty    Faculty?           @relation(fields: [facultySlug], references: [slug])
+  facultySlug  String?
+  slug       String             @unique
+  positions  ElectivePosition[]
+  candidates Candidate[]
+  votes Vote[]
+  createdAt  DateTime           @default(now())
+}
+
+model ElectivePosition {
+  id         String         @id @default(cuid())
+  name       String      @unique
+  status     Int         @default(1)
+  slug       String             @unique
+  candidates Candidate[]
+  elections  Election[]
+  votes      Vote[]
+  createdAt  DateTime    @default(now())
+}
+
+// Define the data model for election candidates
+model Candidate {
+  id         String              @id @default(cuid())
+  name       String
+  manifesto  String?
+  imageUrl   String?
+  votes      Vote[]
+  student    Student          @relation("ManyToOneCandidateToStudent", fields: [studentSlug], references: [userSlug])
+  studentSlug  String
+  position   ElectivePosition @relation(fields: [positionSlug], references: [slug])
+  positionSlug String
+  election   Election         @relation(fields: [electionSlug], references: [slug])
+  electionSlug String
+  slug       String             @unique
+  createdAt  DateTime         @default(now())
+
+  @@unique([studentSlug, electionSlug])
+}
+
+model Voter {
+  id     String    @id @default(cuid())
+  user   User   @relation(fields: [userSlug], references: [slug])  
+  userSlug     String    @unique 
+  slug String    @unique
+  votes  Vote[]
+}
+
+model Vote {
+  id                 String              @id @default(cuid())
+  voter              Voter            @relation(fields: [voterSlug], references: [slug])
+  voterSlug            String
+  position           ElectivePosition @relation(fields: [electionPositionSlug], references: [slug])
+  electionPositionSlug String
+  candidate          Candidate        @relation(fields: [candidateSlug], references: [slug])
+  candidateSlug        String
+  election   Election         @relation(fields: [electionSlug], references: [slug])
+  electionSlug String
+  slug              String            @unique
+  createdAt          DateTime         @default(now())
+  @@unique([voterSlug, electionPositionSlug, electionSlug])
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
