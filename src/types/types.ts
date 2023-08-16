@@ -12,6 +12,7 @@ export type ElectionType = {
     id: string;
     name: string;
     candidates: CandidateType[];
+    positions: ElectivePosition;
 };
 
 export type FacultyType = {
@@ -25,10 +26,13 @@ export type CandidateType = {
     facultyId?: string;
     img?: string;
     color: string;
-    position: ElectivePosition
+    positions: ElectivePosition;
 };
 
 export type ElectivePosition = {
     id: string;
     name: string;
+    candidates: CandidateType[];
+    elections: string;
+    votes: string;
 }
