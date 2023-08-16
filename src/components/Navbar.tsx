@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-
+import { LoginButton, LogoutButton } from "@/app/api/auth";
 
 const Navbar = () => {
   const user = false;
@@ -10,7 +10,8 @@ const Navbar = () => {
       {/* LEFT LINKS */}
       <div className="hidden md:flex gap-4 flex-1">
         <Link href="/">Home</Link>
-        <Link href="/voting">Election</Link>
+        <Link href="/candidates/1">Science</Link>
+        <Link href="/candidates/2">Humanities</Link>
         <Link href="/">Resources</Link>
       </div>
       {/* LOGO */}
@@ -22,12 +23,17 @@ const Navbar = () => {
       <div className="md:hidden">
         <Menu />
       </div>
-        */} 
+        */}
       {/* RIGHT LINKS */}
       <div className="hidden md:flex gap-4 items-center justify-end flex-1">
         <div className="md:absolute top-3 r-2 lg:static flex items-center gap-2 cursor-pointer bg-orange-300 px-1 rounded-md">
-          <span>123 456 78</span>
-          <span>LOGIN</span>
+          <span>
+            <LoginButton />
+          </span>
+          <span>
+            <LogoutButton />
+          </span>
+
           <span>VOTES</span>
         </div>
       </div>
