@@ -3,14 +3,30 @@ import { prisma } from "@/utils/connect";
 import { GetServerSideProps } from "next";
 import { ElectionType } from "@/types/types";
 
+import Image from "next/image";
+
 type Props = {
   election?: ElectionType;
 };
 
 function candidate({ election }: Props) {
   const [positions, setPositions] = useState([]);
-  const [selected, setSelected] = useState("");
   const [candidateList, setCandidateList] = useState([]);
+
+  const handleSubmit = (event) => {
+    const form = event.target;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const values = {
+      President: form["President"]?.value || "",
+      "Vice President": form["Vice President"]?.value || "",
+      Secretary: form["Secretary"]?.value || "",
+    };
+
+    console.log(values);
+  };
 
   useEffect(() => {
     fetch("http://localhost:3000/api/election/")
@@ -20,7 +36,7 @@ function candidate({ election }: Props) {
         console.log(selectedVal?.candidates);
         setCandidateList(selectedVal?.candidates);
       });
-  }, []);
+  }, [election]);
 
   useEffect(() => {
     fetch("http://localhost:3000/api/position/")
@@ -28,7 +44,6 @@ function candidate({ election }: Props) {
       .then((val) => {
         // console.log(val)
         setPositions(val);
-        setSelected(val[0]?.name);
       });
   }, []);
 
@@ -37,23 +52,38 @@ function candidate({ election }: Props) {
       <h2>{election?.name}</h2>
       <div className="w-screen overflow-x-scroll text-red-500">
         <div className="w-max flex">
-          <select
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-          >
-            {positions?.map((opt) => (
-              <option key={opt?.name}>{opt?.name}</option>
+          <form onSubmit={handleSubmit}>
+            {positions.map((pos) => (
+              <div key={pos?.id}>
+                <h3>{pos?.name}</h3>
+                {candidateList?.map(
+                  (item) =>
+                    item.position.name === pos.name && (
+                      <div key={item?.id}>
+                        <input
+                          type="radio"
+                          id={item?.id}
+                          name={pos.name}
+                          value={item?.name}
+                        />
+                        <label htmlFor={item?.id}>
+                          {item?.name}
+                          <img
+                            src={item?.imageUrl}
+                            width={50}
+                            height={50}
+                            alt=""
+                          />
+                        </label>
+                        <br></br>
+                      </div>
+                    )
+                )}
+              </div>
             ))}
-          </select>
-          <div>
-            {selected &&
-              candidateList?.map(
-                (item) =>
-                  item.position.name === selected && (
-                    <div key={item?.id}>{item?.name}</div>
-                  )
-              )}
-          </div>
+
+            <button type="submit">Submit</button>
+          </form>
         </div>
       </div>
     </>
