@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LoginButton, LogoutButton } from "@/app/api/auth";
+import { LoginButton, LogoutButton } from "@/api/helpers";
 
 const Navbar = () => {
   const user = false;

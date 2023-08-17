@@ -4,9 +4,9 @@ import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
-  session: {
+  /*session: {
     strategy: "jwt",
-  },
+  },*/
   providers: [
     CredentialsProvider({
       name: "Sign in",
@@ -16,9 +16,12 @@ export const authOptions: NextAuthOptions = {
           type: "email",
           placeholder: "hello@example.com",
         },
-        password: { label: "Password", type: "password" },
+        password: { 
+          label: "Password", 
+          type: "password" 
+        },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         // //Handle Auth
         const user = {
           id: "14",
@@ -59,7 +62,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     session: ({ session, token }) => {
-      console.log("Session Callback", { session, token });
+      //console.log("Session Callback", { session, token });
       return {
         ...session,
         user: {
@@ -69,15 +72,13 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
-    jwt: ({ token, user }) => {
-      console.log("JWT Callback", { token, user });
-      if (user) {
-        const u = user as unknown as any;
-        return {
-          ...token,
-          id: u.id,
-          randomKey: u.randomKey,
-        };
+    jwt: ({ token, account, profile }) => {
+      //console.log("JWT Callback", { token, account, profile });
+      if (account) {
+        const u = account as unknown as any;
+        token.accessToken = account.access_token
+        token.id = u.id
+        token.randomKey = u.randomKey
       }
       return token;
     },
