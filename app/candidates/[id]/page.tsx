@@ -2,11 +2,17 @@
 import React, {useState, useEffect} from "react";
 import { ElectionType } from "@/types/types";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 function Candidate({ params }: { params: { id: Number } }) {
 
+  const session = useSession()
   const [election, setElection] = useState<ElectionType | null>(null);
-  const [vote, setVote] = useState({})
+  const [vote, setVote] = useState<any>({
+    positions: [],
+    voterInformation: {},
+    electionInformation: {}
+  })
   const id = params.id
   useEffect(() => {
     // Fetch data when the component is mounted
@@ -18,10 +24,36 @@ function Candidate({ params }: { params: { id: Number } }) {
     }
   }, [id]);
 
-  const handleChange = (event: any) => {
+  const handleChange = (voteInfo: any) => {
     setVote({
       ...vote,
-      [event.target.name]: event.target.value
+      positions: 
+      vote.positions.length <= 0
+      ? [
+          {
+            id:voteInfo.position.id,
+            name: voteInfo.position.name,
+            candidate: voteInfo.candidate
+          }
+        ]
+      : vote.positions.map((position: any) => {
+        if(position.id == voteInfo.position.id){
+          return {
+            ...position,
+            id: position.id,
+            name: position.name,
+            candidate: voteInfo.candidate
+          }
+        }
+        return position
+      }),
+      voterInformation: {
+        ...session.data?.user
+      },
+      electionInformation: {
+        id: election?.id,
+        name: election?.name
+      }
     })
   }
 
@@ -74,7 +106,7 @@ function Candidate({ params }: { params: { id: Number } }) {
                           id={item?.id}
                           name={pos.name}
                           value={item?.name}
-                          onChange={handleChange}
+                          onChange={() => handleChange({position: pos, candidate: item})}
                         />
                         <label htmlFor={item?.id}>
                           {item?.name}
