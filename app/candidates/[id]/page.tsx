@@ -6,10 +6,10 @@ import Image from "next/image";
 function Candidate({ params }: { params: { id: Number } }) {
 
   const [election, setElection] = useState<ElectionType | null>(null);
+  const [vote, setVote] = useState({})
   const id = params.id
   useEffect(() => {
     // Fetch data when the component is mounted
-    console.log(id, params)
     if(id){
       fetch(`http://localhost:3000/api/election/?id=${id}`)
         .then(response => response.json())
@@ -18,19 +18,18 @@ function Candidate({ params }: { params: { id: Number } }) {
     }
   }, [id]);
 
-  const handleSubmit = async (event) => {
-    const form = event.target;
+  const handleChange = (event: any) => {
+    setVote({
+      ...vote,
+      [event.target.name]: event.target.value
+    })
+  }
 
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const values = {
-      President: form["President"]?.value || "",
-      VicePresident: form["VicePresident"]?.value || "",
-      Secretary: form["Secretary"]?.value || "",
-    };
-
-    const JSONdata = JSON.stringify(values)
+    const JSONdata = JSON.stringify(vote)
  
     // API endpoint where we send form data.
     const endpoint = '/api/vote'
@@ -53,9 +52,8 @@ function Candidate({ params }: { params: { id: Number } }) {
     // Get the response data from server as JSON.
     // If server returns the name submitted, that means the form works.
     const result = await response.json()
-    alert(`${result.data}`)
+    alert(`${JSON.stringify(result.data)}`)
 
-    console.log(values);
   };
 
   return (
@@ -76,6 +74,7 @@ function Candidate({ params }: { params: { id: Number } }) {
                           id={item?.id}
                           name={pos.name}
                           value={item?.name}
+                          onChange={handleChange}
                         />
                         <label htmlFor={item?.id}>
                           {item?.name}

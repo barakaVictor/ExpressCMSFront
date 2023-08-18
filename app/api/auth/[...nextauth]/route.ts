@@ -21,42 +21,25 @@ export const authOptions: NextAuthOptions = {
           type: "password" 
         },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         // //Handle Auth
-        const user = {
-          id: "14",
-          name: "votertest",
-          email: "votertest@gmail.com",
-        };
-        return user;
-        // if (!credentials?.email || !credentials.password) {
-        //     return null;
-        // }
+        const users = [
+            {
+              id: "14",
+              name: "votertest",
+              email: "votertest@gmail.com",
+          }
+        ];
 
-        // const user = await prisma.user.findUnique({
-        //     where: {
-        //     email: credentials.email,
-        //     },
-        // });
-
-        // if (!user) {
-        //     return null;
-        // }
-
-        // const isPasswordValid = await compare(
-        //     credentials.password,
-        //     user.password
-        // );
-
-        // if (!isPasswordValid) {
-        //     return null;
-        // }
-
-        // return {
-        //     id: user.id + "",
-        //     email: user.email,
-        //     name: user.name,
-        // };
+        const user = users.map((user) => {
+          if(credentials?.email === user?.email){
+            return user
+          }
+        })
+        if(user){
+          return user
+        }
+        return null;
       },
     }),
   ],
