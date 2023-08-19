@@ -2,6 +2,7 @@ import { prisma } from "@/utils/connect";
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { use } from "react";
 
 export const authOptions: NextAuthOptions = {
   /*session: {
@@ -21,31 +22,45 @@ export const authOptions: NextAuthOptions = {
           type: "password" 
         },
       },
-      async authorize(credentials) {
-        // //Handle Auth
-        const users = [
-            {
-              id: "14",
-              name: "votertest",
-              email: "votertest@gmail.com",
+      authorize : async(credentials, request) => {
+        if(credentials?.email && credentials.password){
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials?.email,
+              password: credentials?.password
+            },
+            include: {
+              role: true,
+              student: {
+                include: {
+                  faculty: true
+                }
+              },
+            }
+          })
+          if(user){
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: {
+                id: user.roleId,
+                name: user.role?.name,
+              },
+              faculty: {
+                id: user?.student?.faculty?.id,
+                name: user?.student?.faculty?.name
+              }
+            }
           }
-        ];
-
-        const user = users.map((user) => {
-          if(credentials?.email === user?.email){
-            return user
-          }
-        })
-        if(user){
-          return user
+          return null
         }
-        return null;
+        return null
       },
     }),
   ],
   callbacks: {
     session: ({ session, token }) => {
-      //console.log("Session Callback", { session, token });
       return {
         ...session,
         user: {
@@ -56,7 +71,6 @@ export const authOptions: NextAuthOptions = {
       };
     },
     jwt: ({ token, account, profile }) => {
-      //console.log("JWT Callback", { token, account, profile });
       if (account) {
         const u = account as unknown as any;
         token.accessToken = account.access_token

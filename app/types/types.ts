@@ -28,6 +28,7 @@ export type CandidateType = {
     img?: string;
     color: string;
     positions: ElectivePosition;
+    votes: BigInteger;
 };
 
 export type ElectivePosition = {

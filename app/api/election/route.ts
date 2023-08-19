@@ -33,6 +33,7 @@ export const GET = async (request: NextRequest) => {
                       return {
                           ...position,
                           candidates: position?.candidates?.reduce((acc: Array<any>, candidate : any) => {
+                            candidate.votes = candidate._count.votes
                               if(election.id === candidate.electionId) {acc.push(candidate)}
                               return acc
                           }, [])
@@ -67,6 +68,7 @@ export const GET = async (request: NextRequest) => {
                           return {
                               ...position,
                               candidates: position?.candidates?.reduce((acc2: Array<any>, candidate : any) => {
+                                candidate.votes = candidate._count.votes
                                   if(election.id === candidate.electionId) {acc2.push(candidate)}
                                   return acc2
                               }, [])
